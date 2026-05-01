@@ -1,0 +1,1 @@
+print('nikl bhai yhase jaldi')

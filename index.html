@@ -1,2 +1,760 @@
-<p> this is new repo</p>
-<P>this is 2nd feature</P>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weather Agent</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172022;
+      --muted: #607077;
+      --line: rgba(23, 32, 34, 0.14);
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-strong: rgba(255, 255, 255, 0.94);
+      --teal: #087c86;
+      --coral: #e95f43;
+      --amber: #f4b63e;
+      --sky: #64b6d9;
+      --shadow: 0 24px 70px rgba(21, 48, 61, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 22% 18%, rgba(244, 182, 62, 0.32), transparent 28rem),
+        radial-gradient(circle at 82% 8%, rgba(100, 182, 217, 0.38), transparent 30rem),
+        linear-gradient(135deg, #eef7f7 0%, #f9f2e7 45%, #e9f3f7 100%);
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      background-image:
+        linear-gradient(rgba(23, 32, 34, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 32, 34, 0.045) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 32px 0;
+      display: grid;
+      grid-template-columns: minmax(290px, 390px) minmax(0, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .agent-panel,
+    .weather-panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    .agent-panel {
+      min-height: calc(100vh - 64px);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: linear-gradient(135deg, var(--teal), #15a5a3 54%, var(--coral));
+      box-shadow: 0 16px 38px rgba(8, 124, 134, 0.26);
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.55;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      color: #2d3d42;
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .search-row {
+      min-height: 54px;
+      display: grid;
+      grid-template-columns: 1fr 54px;
+      overflow: hidden;
+      border: 1px solid rgba(8, 124, 134, 0.28);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      padding: 0 16px;
+      color: var(--ink);
+      background: transparent;
+      font: inherit;
+    }
+
+    input::placeholder {
+      color: #8a969b;
+    }
+
+    button {
+      border: 0;
+      color: white;
+      background: var(--teal);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    button:hover {
+      background: #076c76;
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.72;
+      transform: none;
+    }
+
+    .quick-picks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #244046;
+      background: rgba(255, 255, 255, 0.72);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      border-color: rgba(8, 124, 134, 0.38);
+      color: var(--teal);
+    }
+
+    .agent-message {
+      margin-top: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.66);
+    }
+
+    .agent-message strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #143238;
+      font-size: 0.88rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .agent-message p {
+      color: #35484d;
+      line-height: 1.55;
+    }
+
+    .api-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .weather-panel {
+      min-height: calc(100vh - 64px);
+      border-radius: 8px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .sky-band {
+      min-height: 280px;
+      position: relative;
+      padding: 28px;
+      color: white;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(5, 72, 86, 0.86), rgba(8, 124, 134, 0.64)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80") center/cover;
+    }
+
+    .sky-band::after {
+      position: absolute;
+      inset: auto -12% -34% 42%;
+      height: 240px;
+      content: "";
+      border-radius: 999px 999px 0 0;
+      background: rgba(244, 182, 62, 0.5);
+      filter: blur(2px);
+      transform: rotate(-8deg);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: end;
+    }
+
+    .place {
+      display: grid;
+      gap: 10px;
+    }
+
+    .place h2 {
+      font-size: clamp(2rem, 5vw, 4.6rem);
+      line-height: 0.95;
+      max-width: 9ch;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .condition {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      font-weight: 750;
+    }
+
+    .temp-stack {
+      text-align: right;
+    }
+
+    .temp {
+      font-size: clamp(4.4rem, 11vw, 8.6rem);
+      line-height: 0.85;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .feels {
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: 750;
+      opacity: 0.9;
+    }
+
+    .details {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric,
+    .forecast-card {
+      min-height: 112px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--panel-strong);
+    }
+
+    .metric {
+      display: grid;
+      gap: 8px;
+      align-content: space-between;
+    }
+
+    .metric svg {
+      color: var(--teal);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .metric b {
+      font-size: 1.45rem;
+      letter-spacing: 0;
+    }
+
+    .forecast {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .forecast-card {
+      display: grid;
+      gap: 8px;
+    }
+
+    .forecast-card .day {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .forecast-card .range {
+      font-size: 1.25rem;
+      font-weight: 850;
+    }
+
+    .forecast-card .small-condition {
+      color: #365056;
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 100%;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .empty-inner {
+      max-width: 440px;
+    }
+
+    .empty svg {
+      color: var(--coral);
+      margin-bottom: 18px;
+    }
+
+    .empty h2 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+
+    .error {
+      border-color: rgba(233, 95, 67, 0.4);
+      color: #8e2b1c;
+      background: rgba(255, 240, 235, 0.86);
+    }
+
+    .loading {
+      opacity: 0.72;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-panel,
+      .weather-panel {
+        min-height: auto;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .forecast {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 580px) {
+      main {
+        width: min(100% - 20px, 1180px);
+        padding: 10px 0;
+      }
+
+      .agent-panel,
+      .details,
+      .sky-band {
+        padding: 18px;
+      }
+
+      .hero-content {
+        grid-template-columns: 1fr;
+        align-items: end;
+      }
+
+      .temp-stack {
+        text-align: left;
+      }
+
+      .metrics,
+      .forecast {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="agent-panel" aria-label="Weather agent controls">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M6 15.5A4.5 4.5 0 0 1 7.3 6.7 6.2 6.2 0 0 1 19 9.5a3.5 3.5 0 0 1-.5 7H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 20h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Weather Agent</h1>
+          <p class="subtle">Live conditions, practical context, and a short outlook for any place.</p>
+        </div>
+      </div>
+
+      <form id="weatherForm">
+        <label for="placeInput">Place</label>
+        <div class="search-row">
+          <input id="placeInput" name="place" type="search" value="New Delhi" placeholder="City, state, or country" autocomplete="address-level2">
+          <button id="searchButton" type="submit" aria-label="Get weather">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+
+      <div class="quick-picks" aria-label="Quick city choices">
+        <button class="chip" type="button" data-place="Mumbai">Mumbai</button>
+        <button class="chip" type="button" data-place="Bengaluru">Bengaluru</button>
+        <button class="chip" type="button" data-place="London">London</button>
+        <button class="chip" type="button" data-place="New York">New York</button>
+      </div>
+
+      <div id="agentMessage" class="agent-message">
+        <strong>Agent Brief</strong>
+        <p>Ready when you are.</p>
+      </div>
+
+      <p class="api-note">Powered by Open-Meteo geocoding and forecast APIs. No key is required for this static demo.</p>
+    </section>
+
+    <section id="weatherPanel" class="weather-panel" aria-live="polite">
+      <div class="empty">
+        <div class="empty-inner">
+          <svg width="68" height="68" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 15.5A4.5 4.5 0 0 1 5.3 6.7 6.2 6.2 0 0 1 17 9.5a3.5 3.5 0 0 1-.5 7H4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 20h8M11 4V2m8 4 1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <h2>Ask for a place</h2>
+          <p class="subtle">The current temperature, comfort level, wind, pressure, rain, cloud cover, and five-day outlook will appear here.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.querySelector("#weatherForm");
+    const input = document.querySelector("#placeInput");
+    const button = document.querySelector("#searchButton");
+    const panel = document.querySelector("#weatherPanel");
+    const agentMessage = document.querySelector("#agentMessage p");
+    const chips = document.querySelectorAll(".chip");
+
+    const weatherCodes = {
+      0: "Clear sky",
+      1: "Mainly clear",
+      2: "Partly cloudy",
+      3: "Overcast",
+      45: "Fog",
+      48: "Rime fog",
+      51: "Light drizzle",
+      53: "Drizzle",
+      55: "Heavy drizzle",
+      56: "Freezing drizzle",
+      57: "Heavy freezing drizzle",
+      61: "Light rain",
+      63: "Rain",
+      65: "Heavy rain",
+      66: "Freezing rain",
+      67: "Heavy freezing rain",
+      71: "Light snow",
+      73: "Snow",
+      75: "Heavy snow",
+      77: "Snow grains",
+      80: "Rain showers",
+      81: "Strong showers",
+      82: "Violent showers",
+      85: "Snow showers",
+      86: "Heavy snow showers",
+      95: "Thunderstorm",
+      96: "Thunderstorm with hail",
+      99: "Heavy thunderstorm with hail"
+    };
+
+    const iconMap = {
+      humidity: '<path d="M12 22a6 6 0 0 0 6-6c0-4-6-12-6-12S6 12 6 16a6 6 0 0 0 6 6Z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>',
+      wind: '<path d="M3 8h12a3 3 0 1 0-3-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M3 13h16a3 3 0 1 1-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M3 18h8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>',
+      pressure: '<circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 12 16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+      rain: '<path d="M7 14a4 4 0 0 1 1.4-7.75A5.4 5.4 0 0 1 18.6 9a3 3 0 0 1-.6 5H7Z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="m9 18-1 2m5-2-1 2m5-2-1 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+      cloud: '<path d="M5 17a4 4 0 0 1 1.2-7.82A5.7 5.7 0 0 1 17 11a3 3 0 0 1 0 6H5Z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>',
+      gust: '<path d="M4 7h12a2.5 2.5 0 1 0-2.5-2.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 17h10a2.5 2.5 0 1 1-2.5 2.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>',
+      sunrise: '<path d="M4 18h16M6 15a6 6 0 0 1 12 0M12 3v5m-7 3-2-2m16 0-2 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>',
+      sunset: '<path d="M4 18h16M6 15a6 6 0 0 1 12 0M12 13V8m-7 3-2-2m16 0-2 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>'
+    };
+
+    function svg(name) {
+      return `<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">${iconMap[name]}</svg>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function round(value, digits = 0) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      return Number(value).toFixed(digits);
+    }
+
+    function conditionText(code) {
+      return weatherCodes[code] || "Mixed conditions";
+    }
+
+    function formatTime(value, timeZone) {
+      return new Intl.DateTimeFormat(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone
+      }).format(new Date(value));
+    }
+
+    function formatDay(value, timeZone) {
+      return new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        timeZone
+      }).format(new Date(`${value}T12:00:00`));
+    }
+
+    function getWindDirection(degrees) {
+      const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+      return directions[Math.round(degrees / 45) % 8];
+    }
+
+    function setLoading(isLoading) {
+      button.disabled = isLoading;
+      panel.classList.toggle("loading", isLoading);
+      agentMessage.textContent = isLoading ? "Checking the sky and sorting the useful bits." : agentMessage.textContent;
+    }
+
+    function setError(message) {
+      const safeMessage = escapeHtml(message);
+      panel.innerHTML = `
+        <div class="empty">
+          <div class="empty-inner">
+            <h2>No reading</h2>
+            <p class="subtle">${safeMessage}</p>
+          </div>
+        </div>
+      `;
+      document.querySelector("#agentMessage").classList.add("error");
+      agentMessage.textContent = message;
+    }
+
+    function buildBrief(place, current, daily) {
+      const condition = conditionText(current.weather_code);
+      const feels = round(current.apparent_temperature);
+      const rain = current.precipitation > 0 ? `There is ${round(current.precipitation, 1)} mm of precipitation right now.` : "No active precipitation is showing right now.";
+      const wind = current.wind_speed_10m >= 28 ? "Winds are brisk, so outdoor plans may feel exposed." : "Wind looks manageable for normal outdoor plans.";
+      const todayHigh = round(daily.temperature_2m_max[0]);
+      const todayLow = round(daily.temperature_2m_min[0]);
+      return `${place} is ${condition.toLowerCase()} at ${round(current.temperature_2m)}°C, feeling like ${feels}°C. ${rain} ${wind} Today is tracking around ${todayHigh}°/${todayLow}°C.`;
+    }
+
+    function metric(label, value, icon) {
+      return `
+        <article class="metric">
+          ${svg(icon)}
+          <span>${label}</span>
+          <b>${value}</b>
+        </article>
+      `;
+    }
+
+    function renderWeather(place, country, current, daily, timeZone) {
+      const locationName = country ? `${place}, ${country}` : place;
+      const safePlace = escapeHtml(place);
+      const safeLocationName = escapeHtml(locationName);
+      const condition = conditionText(current.weather_code);
+      const sunrise = formatTime(daily.sunrise[0], timeZone);
+      const sunset = formatTime(daily.sunset[0], timeZone);
+      const forecast = daily.time.slice(0, 5).map((date, index) => `
+        <article class="forecast-card">
+          <span class="day">${index === 0 ? "Today" : formatDay(date, timeZone)}</span>
+          <span class="range">${round(daily.temperature_2m_max[index])}° / ${round(daily.temperature_2m_min[index])}°</span>
+          <span class="small-condition">${conditionText(daily.weather_code[index])}</span>
+        </article>
+      `).join("");
+
+      panel.innerHTML = `
+        <div class="sky-band">
+          <div class="hero-content">
+            <div class="place">
+              <span class="condition">${condition}</span>
+              <h2>${safePlace}</h2>
+              <p>${safeLocationName}</p>
+            </div>
+            <div class="temp-stack">
+              <div class="temp">${round(current.temperature_2m)}°</div>
+              <div class="feels">Feels like ${round(current.apparent_temperature)}°C</div>
+            </div>
+          </div>
+        </div>
+        <div class="details">
+          <div class="metrics">
+            ${metric("Humidity", `${round(current.relative_humidity_2m)}%`, "humidity")}
+            ${metric("Wind", `${round(current.wind_speed_10m)} km/h ${getWindDirection(current.wind_direction_10m)}`, "wind")}
+            ${metric("Pressure", `${round(current.pressure_msl)} hPa`, "pressure")}
+            ${metric("Rain now", `${round(current.precipitation, 1)} mm`, "rain")}
+            ${metric("Cloud cover", `${round(current.cloud_cover)}%`, "cloud")}
+            ${metric("Gusts", `${round(current.wind_gusts_10m)} km/h`, "gust")}
+            ${metric("Sunrise", sunrise, "sunrise")}
+            ${metric("Sunset", sunset, "sunset")}
+          </div>
+          <div class="forecast">${forecast}</div>
+        </div>
+      `;
+
+      document.querySelector("#agentMessage").classList.remove("error");
+      agentMessage.textContent = buildBrief(locationName, current, daily);
+    }
+
+    async function getWeather(place) {
+      const geoUrl = new URL("https://geocoding-api.open-meteo.com/v1/search");
+      geoUrl.search = new URLSearchParams({
+        name: place,
+        count: "1",
+        language: "en",
+        format: "json"
+      });
+
+      const geoResponse = await fetch(geoUrl);
+      if (!geoResponse.ok) throw new Error("The location service did not respond.");
+      const geo = await geoResponse.json();
+      const result = geo.results?.[0];
+      if (!result) throw new Error("I could not find that place. Try a city name with the country.");
+
+      const forecastUrl = new URL("https://api.open-meteo.com/v1/forecast");
+      forecastUrl.search = new URLSearchParams({
+        latitude: result.latitude,
+        longitude: result.longitude,
+        current: "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m",
+        daily: "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset",
+        timezone: "auto",
+        forecast_days: "5"
+      });
+
+      const forecastResponse = await fetch(forecastUrl);
+      if (!forecastResponse.ok) throw new Error("The weather service did not respond.");
+      const forecast = await forecastResponse.json();
+      renderWeather(result.name, result.country, forecast.current, forecast.daily, forecast.timezone);
+    }
+
+    async function runSearch(place) {
+      const trimmed = place.trim();
+      if (!trimmed) return;
+      setLoading(true);
+      try {
+        await getWeather(trimmed);
+      } catch (error) {
+        setError(error.message || "Something went wrong while fetching the weather.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      runSearch(input.value);
+    });
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        input.value = chip.dataset.place;
+        runSearch(chip.dataset.place);
+      });
+    });
+
+    runSearch(input.value);
+  </script>
+</body>
+</html>

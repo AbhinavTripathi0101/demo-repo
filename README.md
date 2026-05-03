@@ -34,3 +34,13 @@ Enter first number: 5
 Enter second number: 3
 Result: 8.0
 ```
+
+## Weather Agent UI
+
+Open `index.html` in a browser, or run:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then visit `http://127.0.0.1:8000/`. The weather UI uses the free Open-Meteo geocoding and forecast APIs, so no API key is needed.

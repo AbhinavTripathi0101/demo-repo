@@ -44,3 +44,16 @@ python3 -m http.server 8000
 ```
 
 Then visit `http://127.0.0.1:8000/`. The weather UI uses the free Open-Meteo geocoding and forecast APIs, so no API key is needed.
+
+## Minimal Runner Game
+
+Open `runner-game.html` in a browser to play the simple runner game.
+
+To run via terminal:
+python3 -m http.server 8000
+
+Controls:
+
+- Press `Space` or `ArrowUp` to jump.
+- Tap or click the game area to jump.
+- Avoid the red blocks and try to beat your best score.

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal Run</title>
+  <link rel="stylesheet" href="runner-game.css">
+</head>
+<body>
+  <main class="game-shell">
+    <section class="topbar" aria-label="Game stats">
+      <div>
+        <p class="label">Score</p>
+        <strong id="score">0</strong>
+      </div>
+      <div>
+        <p class="label">Best</p>
+        <strong id="best">0</strong>
+      </div>
+    </section>
+
+    <canvas id="game" width="900" height="420" aria-label="Minimal runner game"></canvas>
+
+    <section class="controls">
+      <button id="startButton" type="button">Start</button>
+      <p>Space / Tap to jump</p>
+    </section>
+  </main>
+
+  <script src="runner-game.js"></script>
+</body>
+</html>
